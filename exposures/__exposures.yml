@@ -1,0 +1,16 @@
+version: 2
+
+exposures:
+  - name: revenue_dashboard
+    label: Dashboard semanal de ingresos
+    type: dashboard
+    maturity: high
+    url: https://bi.civica-soft.com/d/revenue
+    description: KPI semanal de ingresos para Finanzas.
+    depends_on:
+      - ref('fct_orders')
+      - metric('total_revenue')
+      - metric('avg_order_value')
+    owner:
+      name: Finanzas
+      email: finanzas@civica-soft.com

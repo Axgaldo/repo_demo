@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: marvel_raw
+    database: MARVEL_RAW_DB
+    schema: LOCG
+    tables:
+      - name: raw_comics
+      - name: raw_characters
+      - name: raw_release_dates
