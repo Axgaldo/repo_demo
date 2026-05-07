@@ -45,12 +45,14 @@ final as (
         , a.zipcode::varchar(20) as zipcode
         , a.state
         , a.country
-        -- FORZAMOS EL TIPO DE DATO A TIMESTAMP_TZ PARA CUMPLIR EL CONTRATO:
-        , u.created_at_utc::timestamp_tz                     as registered_at_utc
-        , u.updated_at_utc::timestamp_tz                     as last_updated_at_utc
-        -- AÑADIMOS PRECISIÓN AL NUMBER PARA QUITAR EL WARNING:
-        , datediff('day', u.created_at_utc, current_timestamp())::number(38,0) as days_since_registration
-        , u.date_load::timestamp_tz                          as date_load
+        -- En tu archivo dim_users.sql, dentro del bloque 'final':
+
+        , to_timestamp_tz(u.created_at_utc)      as registered_at_utc
+        , to_timestamp_tz(u.updated_at_utc)      as last_updated_at_utc
+        , to_timestamp_tz(u.date_load)           as date_load
+        -- Para el warning del number:
+        , cast(datediff('day', u.created_at_utc, current_timestamp()) as number(38,0)) as days_since_registration
+
     from users u
     left join addresses a on u.address_id = a.address_id
 
