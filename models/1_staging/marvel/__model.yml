@@ -1,0 +1,128 @@
+version: 2
+
+models:
+  - name: stg_characters
+    description: "Capa de staging para personajes. Limpia la estructura anidada de biografía y apariciones."
+    columns:
+      - name: character_id
+        description: "ID único interno de League of Comic Geeks."
+        data_tests: 
+          - unique
+          - not_null
+      - name: character_name
+        description: "Nombre público del personaje o alter-ego."
+        data_tests: 
+          - not_null
+      - name: character_url
+        description: "URL de la ficha del personaje en la web fuente."
+      - name: image_url
+        description: "Enlace a la imagen del avatar del personaje."
+      - name: character_type
+        description: "Diferencia entre el personaje base y sus identidades (Alter-Ego)."
+      - name: multiversal_entity_name
+        description: "Campo clave para agrupar diferentes registros bajo una misma identidad (ej. Peter Parker)."
+      - name: universe
+        description: "Tierra o realidad a la que pertenece el personaje."
+      - name: years_active_raw
+        description: "Rango de años de actividad en formato texto (ej. 1962 - Present)."
+      - name: franchise
+        description: "Franquicia principal (generalmente Marvel Universe)."
+      - name: species
+        description: "Raza o especie del personaje (Human, Mutant, Inhuman, etc.)."
+      - name: pronouns
+        description: "Pronombres preferidos del personaje."
+      - name: living_status
+        description: "Estado vital actual del personaje (Alive, Deceased)."
+      - name: occupation
+        description: "Profesión o rol principal del personaje."
+      - name: place_of_origin
+        description: "Lugar de nacimiento o creación (cadena de texto jerárquica)."
+      - name: first_appearance_issue
+        description: "Nombre del primer cómic donde apareció el personaje."
+      - name: first_appearance_issue_url
+        description: "URL para extraer el issue_id de la primera aparición."
+      - name: death_issue
+        description: "Nombre del cómic donde ocurrió la primera muerte del personaje."
+      - name: death_issue_url
+        description: "URL para extraer el issue_id del evento de muerte."
+      - name: creators_array
+        description: "JSON array con nombres e IDs de los creadores (Jack Kirby, etc.)."
+      - name: aliases_array
+        description: "Lista de nombres alternativos o apodos."
+      - name: affiliations_json
+        description: "Objeto complejo con equipos actuales y pasados."
+      - name: capabilities_json
+        description: "Objeto complejo con habilidades y niveles de poder."
+      - name: relationships_json
+        description: "Objeto con familiares, aliados y enemigos."
+      - name: source_file_name
+        description: "Nombre del archivo JSON original en S3/Stage."
+      - name: loaded_at
+        description: "Timestamp de carga en la capa de Staging."
+
+  - name: stg_issues
+    description: "Capa de staging para ejemplares individuales de cómics."
+    columns:
+      - name: issue_id
+        description: "ID único del cómic."
+        data_tests: 
+          - unique
+          - not_null
+      - name: issue_url
+        description: "URL del ejemplar."
+      - name: issue_title
+        description: "Nombre completo del ejemplar (Serie + Número)."
+        data_tests: 
+          - not_null
+      - name: cover_url
+        description: "URL de la imagen de portada."
+      - name: description
+        description: "Sinopsis o resumen del contenido del cómic."
+      - name: rating_avg
+        description: "Media de puntuación de usuarios (0-5)."
+      - name: ratings_count
+        description: "Número total de votos recibidos."
+      - name: num_user_owns
+        description: "Usuarios que tienen este cómic en su colección."
+      - name: num_user_reads
+        description: "Usuarios que han marcado este cómic como leído."
+      - name: num_user_wishes
+        description: "Usuarios que tienen este cómic en su lista de deseos."
+      - name: format_desc
+        description: "Formato físico/digital (Comic, Hardcover, TPB)."
+      - name: num_pages
+        description: "Número de páginas del ejemplar."
+      - name: price_dollars
+        description: "Precio de venta original en USD."
+      - name: upc
+        description: "Código Universal de Producto."
+      - name: sku
+        description: "Stock Keeping Unit interno."
+      - name: cover_date_raw
+        description: "Fecha impresa en la portada (texto)."
+      - name: stories_raw
+        description: "Array VARIANT con las historias y créditos dentro del issue."
+      - name: source_file_name
+        description: "Archivo de origen."
+      - name: loaded_at_raw
+        description: "Timestamp original de ingesta."
+
+  - name: stg_release_dates
+    description: "Mapeo técnico de fechas de salida a mercado."
+    columns:
+      - name: issue_id
+        description: "FK que conecta con stg_issues."
+        data_tests: 
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_issues')
+                field: issue_id
+              config:
+                severity: error
+                warn_if: ">10" # >10 filas fuera de rango → warn
+                error_if: ">500"
+      - name: release_date_raw
+        description: "Fecha real de salida a tiendas (texto)."
+      - name: series_id
+        description: "ID de la colección (Series) a la que pertenece."
